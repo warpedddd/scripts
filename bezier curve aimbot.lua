@@ -1,17 +1,8 @@
 --[[
-
-                   ___                __ __                             
-   .-----.-----.  /  /.-----.-----.--|  |__|.--.--.--------.-----.-----.
- __|  _  |  _  |,' ,' |__ --|  _  |  _  |  ||  |  |        |__ --|__ --|
-|__|___  |___  /__/   |_____|_____|_____|__||_____|__|__|__|_____|_____|
-   |_____|_____|                                                                                                          
-
     --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                                                                                                                                      
 
-    This is only made by @wxrpedd aka Kai don't fall for impersonators. If you have any issues open a ticket in the server!
-
     ///////////////////////////////
-    //   © 2022 - 2023 SodiumSS  //
+    //  © 2022 - 2023 AstraTools //
     //    All rights reserved    //
     ///////////////////////////////
     // This material may not be  //
@@ -22,13 +13,9 @@
     //   the copyright holder.   //
     ///////////////////////////////
 
-   _____           _ _                    _____       _       _   _                            ______         _                       
-  / ____|         | (_)                  / ____|     | |     | | (_)                          |  ____|       | |                      
- | (___   ___   __| |_ _   _ _ __ ___   | (___   ___ | |_   _| |_ _  ___  _ __  ___   ______  | |__ ___  __ _| |_ _   _ _ __ ___  ___ 
-  \___ \ / _ \ / _` | | | | | '_ ` _ \   \___ \ / _ \| | | | | __| |/ _ \| '_ \/ __| |______| |  __/ _ \/ _` | __| | | | '__/ _ \/ __|
-  ____) | (_) | (_| | | |_| | | | | | |_ ____) | (_) | | |_| | |_| | (_) | | | \__ \          | | |  __/ (_| | |_| |_| | | |  __/\__ \
- |_____/ \___/ \__,_|_|\__,_|_| |_| |_(_)_____/ \___/|_|\__,_|\__|_|\___/|_| |_|___/          |_|  \___|\__,_|\__|\__,_|_|  \___||___/
-                                                                                                                                      
+	
+
+	{AstraTools} - Features    
     --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------                                                                                                                                      
     
     {+} Enable And Disable Aimbot
@@ -42,15 +29,20 @@
     --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 ]]
 
+local Table = {
+    MagicBullet = true,
+}
+
 -- // Vars & Services // --
 local V3                    = Vector3.new;
 local V2                    = Vector2.new;
 local C3                    = Color3.new;
 local UserInputService      = game:GetService("UserInputService");
 local Inset                 = game:GetService("GuiService"):GetGuiInset()
-local Current_Camera        = game:GetService("Workspace").CurrentCamera;
+local Current_Camera        = game:FindFirstChild("Workspace").CurrentCamera; -- // Workspace - Client for rivals support (Workspace is default) // --
 local Run_Service           = game:GetService("RunService");
-local Local_Player          = game:GetService("Players").LocalPlayer;
+local Local_Player          = game:FindFirstChild("Players").LocalPlayer;
+local Players               = game:FindFirstChild("Players") -- // Players - Client for rivals support (Players is default) // --
 local Boxes                 = {};
 local Target                = nil;
 local Toggle                = nil;
@@ -90,51 +82,62 @@ local Fov; Fov = function()
 end
 
 -- // Watermark Main Func // --
-local Watermark; Watermark = function()
+local Watermark
+Watermark = function()
     if WatermarkText and WatermarkText2 then
-        -- // Text Properties // --
+        -- // Define text properties // --
         WatermarkText.Visible   = true
         WatermarkText.Outline   = true
         WatermarkText.Size      = 14
         WatermarkText.Font      = 2
         WatermarkText.Color     = C3(1, 1, 1)
-        WatermarkText.Center    = false
-        WatermarkText.Text      = "Sodium."
-        WatermarkText.Position  = V2(Get_Mouse_Pos.X - 30, Get_Mouse_Pos.Y + 30 + Inset.Y) 
+        WatermarkText.Center    = true 
+        WatermarkText.Text      = "Astra"
 
         WatermarkText2.Visible  = true
         WatermarkText2.Outline  = true
         WatermarkText2.Font     = 2
         WatermarkText2.Size     = 14
-        WatermarkText2.Text     = "Solutions"
+        WatermarkText2.Text     = "Tools"
         WatermarkText2.Color    = C3(0.486274, 0.725490, 1)
-        WatermarkText2.Center   = false
-        WatermarkText2.Position = V2(Get_Mouse_Pos.X + 17, Get_Mouse_Pos.Y + 30 + Inset.Y) 
-        -- // Always try to return something it is a good habit // --
+        WatermarkText2.Center   = true 
+
+        -- // Set position under cursor // --
+        local watermarkOffsetY = 30 + Inset.Y
+        WatermarkText.Position  = V2(Get_Mouse_Pos.X, Get_Mouse_Pos.Y + watermarkOffsetY)
+        WatermarkText2.Position = V2(Get_Mouse_Pos.X, Get_Mouse_Pos.Y + watermarkOffsetY + WatermarkText.Size + 2)
+
+        -- // Always try to return something; it is a good habit // --
         return WatermarkText, WatermarkText2
     end
     -- // Returns nil // --
     return nil
 end
 
+
 -- // Box ESP // --
-local BoxEsp; BoxEsp = function()
-    for _, v in ipairs(game.Players:GetPlayers()) do
+local BoxEsp
+BoxEsp = function()
+    for _, v in ipairs(Players:GetPlayers()) do
         if v ~= Local_Player and not Boxes[v] then
             -- // Creates New Box // --
             local Box_Outline = Drawing.new("Square")
             local Box = Drawing.new("Square")
+            local Health_Bar = Drawing.new("Line")
 
             Box_Outline.Color = C3(0, 0, 0)
             -- // Caches the Box // --
-            Boxes[v] = Box
+            Boxes[v] = {Box = Box, Outline = Box_Outline, Health = Health_Bar}
+            
             -- // Loop // --
             Run_Service.RenderStepped:Connect(function()
                 -- // Checks if the players are available // --
                 if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") then
                     local Position, OnScreen = Current_Camera.WorldToScreenPoint(Current_Camera, v.Character.HumanoidRootPart.Position)
                     local Health = v.Character.Humanoid.Health
-                    -- // Checks if the players are on screen and the health is greater than 0 ( Essentially just a death check ) // --
+                    local MaxHealth = v.Character.Humanoid.MaxHealth
+
+                    -- // Checks if the players are on screen and the health is greater than 0 (death check) // --
                     if OnScreen and Health > 0 then
                         Box_Outline.Visible = true
                         Box_Outline.Thickness = 5
@@ -144,63 +147,58 @@ local BoxEsp; BoxEsp = function()
                         Box.Transparency = 1
                         Box.Thickness = 1
 
-                        -- // Changes to a 
+                        -- // Set team-based color // --
                         if Local_Player.Team == v.Team then
                             Box.Color = C3(1, 0, 0)
                         else
                             Box.Color = C3(0.486274, 0.725490, 1)
                         end
 
+                        -- // Calculate Sizes // --
                         local Size = V2((v.Character.HumanoidRootPart.Size.X * 1350) / Position.Z, (v.Character.HumanoidRootPart.Size.Y * 3000) / Position.Z)
-                        local InnerSize = Size + V2(Box_Outline.Thickness - 10, Box_Outline.Thickness - 10)
+                        local InnerSize = Size - V2(4, 4) -- Inner box is slightly smaller to fit within outline
 
                         Box_Outline.Size = Size
                         Box.Size = InnerSize
 
+                        -- // Set Positioning for Boxes // --
                         local Point = V2(Position.X - Size.X / 2, (Position.Y + Inset.Y - Size.Y / 2))
-                        local InnerPoint = V2(Position.X - InnerSize.X / 2, (Position.Y + Inset.Y - InnerSize.Y / 2))
+                        local InnerPoint = Point + V2(2, 2) -- Adjusted to center within outline
 
-                        Box.Position = Point
-                        Box_Outline.Position = InnerPoint
+                        Box.Position = InnerPoint
+                        Box_Outline.Position = Point
+
+                        -- // Health Bar Position and Size // --
+                        Health_Bar.Visible = true
+                        Health_Bar.Color = C3(0, 1, 0)
+                        Health_Bar.Thickness = 2
+
+                        -- Calculate health bar height and start from the bottom of the box
+                        local HealthBarHeight = Size.Y * (Health / MaxHealth)
+                        Health_Bar.From = Point - V2(6, -Size.Y) -- Start at the bottom of the box
+                        Health_Bar.To = Point - V2(6, -Size.Y + HealthBarHeight) -- End based on health percentage
                     else
-                        -- // Makes the box non-visible if the player is not on screen or if the player is dead // --
+                        -- // Makes the box and health bar non-visible if player is off-screen or dead // --
                         Box.Visible = false
                         Box_Outline.Visible = false
+                        Health_Bar.Visible = false
                     end
                 else
-                    -- // Makes the box non-visible if the player isn't available // --
+                    -- // Makes the box and health bar non-visible if player isn't available // --
                     Box.Visible = false
                     Box_Outline.Visible = false
+                    Health_Bar.Visible = false
                 end
             end)
         end
     end
 end
 
--- // Checks if Part Is Visible // --
-local IsPartVisible; IsPartVisible = function(Plr)
-    local Visible = false
-    for _, Part in ipairs(Plr.Character:GetChildren()) do
-        if Part:IsA("BasePart") then
-            local Origin = Current_Camera.CFrame.Position
-            local OnScreen = Current_Camera.WorldToScreenPoint(Current_Camera, Part.Position)
-            -- // Checks if point is on screen // --
-            if (OnScreen) then
-                local NewRay = Ray.new(Origin, Part.Position - Origin)
-                local Result = workspace.FindPartOnRayWithIgnoreList(workspace, NewRay, {Local_Player.Character, Current_Camera})
-                Visible = (not Result or Result.IsDescendantOf(Result, Plr.Character))
-            end
-        end
-    end
-    -- // Returns false or result // --
-    return Visible
-end
-
 -- // Get Closest Player // --
 local GetClosestPlayer; GetClosestPlayer = function()
     local ClosestTarget = nil;
     local MaxDistance   = math.huge;
-    for _, v in pairs(game.Players:GetPlayers()) do
+    for _, v in pairs(Players:GetPlayers()) do
         if v.Character and v ~= Local_Player and v.Character:FindFirstChild("HumanoidRootPart") then
             -- // Gets distance // --
             local Position = Current_Camera.WorldToScreenPoint(Current_Camera, v.Character.HumanoidRootPart.Position)
@@ -238,7 +236,7 @@ end)
 
 -- // Main Aimbot Func // --
 local Aimbot; Aimbot = function()
-    if Target and Target.Character and Target.Character:FindFirstChild("Head") and Target.Character:FindFirstChild("Humanoid") and IsPartVisible(Target) then
+    if Target and Target.Character and Target.Character:FindFirstChild("Head") and Target.Character:FindFirstChild("Humanoid") then
         -- // Vars // --
         local Health = Target.Character.Humanoid.Health
         local Position = Target.Character.Head.Position
@@ -257,17 +255,31 @@ local Aimbot; Aimbot = function()
     end
 end
 
-
 -- // Runs Box Esp Function // --
 BoxEsp()
 
 -- // Makes it so the box goes on new players too // --
-Connection(game.Players.PlayerAdded, function()
+Connection(Players.PlayerAdded, function()
     BoxEsp()
 end)
 
+local magicbullet = nil
+magicbullet = function()
+    if Table.MagicBullet then
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= Local_Player and v.Character and v.Character:FindFirstChild("Head") then
+                local head = v.Character.Head
+                head.CanCollide = false
+                head.Transparency = 0.5 
+                head.Size = Vector3.new(13, 13, 13)
+            end
+        end 
+    end
+end
+
 Connection(Run_Service.RenderStepped, function() -- // Just Remove the features you want to remove for instance, if I wanted to remove disable the aimbot completely I could just take it out from the connection
     Aimbot();
+    magicbullet();
     Fov();
     Watermark();
 end)
