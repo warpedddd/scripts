@@ -29,10 +29,6 @@
     --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
 ]]
 
-local Table = {
-    MagicBullet = true,
-}
-
 -- // Vars & Services // --
 local V3                    = Vector3.new;
 local V2                    = Vector2.new;
@@ -263,23 +259,8 @@ Connection(Players.PlayerAdded, function()
     BoxEsp()
 end)
 
-local magicbullet = nil
-magicbullet = function()
-    if Table.MagicBullet then
-        for _, v in pairs(Players:GetPlayers()) do
-            if v ~= Local_Player and v.Character and v.Character:FindFirstChild("Head") then
-                local head = v.Character.Head
-                head.CanCollide = false
-                head.Transparency = 0.5 
-                head.Size = Vector3.new(13, 13, 13)
-            end
-        end 
-    end
-end
-
 Connection(Run_Service.RenderStepped, function() -- // Just Remove the features you want to remove for instance, if I wanted to remove disable the aimbot completely I could just take it out from the connection
     Aimbot();
-    magicbullet();
     Fov();
     Watermark();
 end)
